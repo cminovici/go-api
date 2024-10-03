@@ -35,7 +35,7 @@ func (s *Server) SaveWordOccurrences(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	insertSQL := `INSERT INTO word_count (word, count) VALUES (?, ?)`
+	insertSQL := `INSERT INTO word_count (word, count) VALUES (?, ?) ON CONFLICT(word) DO UPDATE SET count = count + excluded.count`
 	stmt, err := txn.Prepare(insertSQL)
 	if err != nil {
 		http.Error(w, "Failed to prepare statement", http.StatusInternalServerError)
@@ -47,7 +47,7 @@ func (s *Server) SaveWordOccurrences(w http.ResponseWriter, r *http.Request) {
 	for word, count := range wordCount {
 		_, err := stmt.Exec(word, count)
 		if err != nil {
-			http.Error(w, "Failed to insert word into database", http.StatusInternalServerError)
+			http.Error(w, "Failed to insert or update word in database", http.StatusInternalServerError)
 			txn.Rollback()
 			return
 		}

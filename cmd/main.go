@@ -20,7 +20,7 @@ func initDB() *sql.DB {
 	createTableSQL := `
 	CREATE TABLE IF NOT EXISTS word_count (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		word TEXT,
+		word TEXT UNIQUE,
 		count NUMERIC
 	);
 	`
